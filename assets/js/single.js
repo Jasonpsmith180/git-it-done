@@ -1,4 +1,5 @@
 var issueContainerEl = document.querySelector("#issues-container");
+var limitWarningEl = document.querySelector("#limit-warning");
 
 var getRepoIssues = function(repo) {
     console.log(repo);
@@ -11,12 +12,17 @@ var getRepoIssues = function(repo) {
             response.json().then(function(data) {
                 // pass data to dom function
                 displayIssues(data);
+
+                // check if api has paginated issues
+                if (response.headers.get("Link")) {
+                    displayWarning(repo);
+                }
             });
         } else {
             alert("There was a problem with your request!");
         }
     });
-}
+};
 
 var displayIssues = function(issues) {
     // if the repo has no open issues return
@@ -60,5 +66,19 @@ var displayIssues = function(issues) {
     }
 };
 
+var displayWarning = function(repo) {
+    // add text warning to container
+    limitWarningEl.textContent = "To see more than 30 issues, please visit ";
 
-getRepoIssues("jasonpsmith180/run-buddy");
+    // create link element that points to github
+    var linkEl = document.createElement("a");
+    // assign attributes
+    linkEl.textContent = "See more items on GitHub.com";
+    linkEl.setAttribute("href", "https://github.com/" + repo + "/issues");
+    linkEl.setAttribute("target", "_blank");
+
+    // append to warning container
+    limitWarningEl.appendChild(linkEl);
+};
+
+getRepoIssues("facebook/react");
